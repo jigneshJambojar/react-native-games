@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "Word Puzzle",
+    "slug": "word-puzzle",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#6366f1"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.wordpuzzle"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#6366f1"
+      },
+      "package": "com.yourcompany.wordpuzzle"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-9084396328078500~6234998527",
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b6ee23c2-0ec9-489a-aef0-3d3c74ee8d8c"
+      }
+    },
+    "react-native-google-mobile-ads": {
+      "android_app_id": "ca-app-pub-9084396328078500~6234998527",
+      "ios_app_id": "ca-app-pub-3940256099942544~1458002511"
+    }
+  }
+}
