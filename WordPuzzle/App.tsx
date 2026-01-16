@@ -36,9 +36,11 @@ export default function App() {
 
   useEffect(() => {
     // Initialize AdMob on app start
-    adService.initialize(adUnits).catch(error => {
-      console.error('[App] Failed to initialize AdMob:', error);
-    });
+    if (adUnits) {
+      adService.initialize(adUnits).catch(error => {
+        console.error('[App] Failed to initialize AdMob:', error);
+      });
+    }
   }, [adUnits]);
 
   return (
