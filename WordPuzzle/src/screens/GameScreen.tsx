@@ -36,6 +36,17 @@ export default function GameScreen() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const timeRemainingRef = useRef(0);
 
+  const [adUnits, setAdUnits] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('https://d22swxawtpfyg.cloudfront.net/react-native-game-settings/word-puzzle-adunit.json?v=' + new Date())
+      .then(res => res.json())
+      .then(json => {
+        setAdUnits(json);
+      })
+      .catch(err => console.log('Failed to load ads', err.message));
+  }, []);
+
   useEffect(() => {
     startLevel(levelId);
     return () => {
@@ -121,7 +132,7 @@ export default function GameScreen() {
           {
             text: 'Watch Video',
             onPress: async () => {
-              const result = await adService.showRewardedAd();
+              const result = await adService.showRewardedAd(adUnits);
               if (result.success && result.coins > 0) {
                 // Reward is given by the ad service
                 addCoins(result.coins);
@@ -162,7 +173,7 @@ export default function GameScreen() {
     // Show interstitial ad after every 2 completed games
     if (progress.gamesCompletedSinceLastAd >= 2) {
       console.log('[GameScreen] Showing interstitial ad after 2 games');
-      await adService.showInterstitialAd();
+      await adService.showInterstitialAd(adUnits);
       resetAdCounter();
     }
 
@@ -301,9 +312,9 @@ export default function GameScreen() {
         </View>
       </View>
 
-      <View style={styles.bannerContainer}>
+      {adUnits && adUnits.banner && (<View style={styles.bannerContainer}>
         <BannerAd
-          unitId={adService.getBannerAdUnitId()}
+          unitId={adService.getBannerAdsUnitId(adUnits.banner)}
           size={BannerAdSize.MEDIUM_RECTANGLE}
           requestOptions={{
             requestNonPersonalizedAdsOnly: false,
@@ -316,6 +327,7 @@ export default function GameScreen() {
           }}
         />
       </View>
+      )}
 
       <Modal visible={showTimeUpModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>

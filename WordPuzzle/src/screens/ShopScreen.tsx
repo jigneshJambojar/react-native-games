@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Image, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,11 +19,21 @@ export default function ShopScreen() {
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [purchasedCoins, setPurchasedCoins] = useState(0);
+  const [adUnits, setAdUnits] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('https://d22swxawtpfyg.cloudfront.net/react-native-game-settings/word-puzzle-adunit.json?v=' + new Date())
+      .then(res => res.json())
+      .then(json => {
+        setAdUnits(json);
+      })
+      .catch(err => console.log('Failed to load ads', err.message));
+  }, []);
 
   const handleWatchAd = async () => {
     setWatchingAd(true);
     try {
-      const result = await adService.showRewardedAd();
+      const result = await adService.showRewardedAd(adUnits);
       if (result.success && result.coins > 0) {
         // Reward is given by the ad service
         addCoins(result.coins);

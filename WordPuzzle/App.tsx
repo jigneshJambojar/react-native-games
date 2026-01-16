@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -23,12 +23,23 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const queryClient = new QueryClient();
 
 export default function App() {
+  const [adUnits, setAdUnits] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('https://d22swxawtpfyg.cloudfront.net/react-native-game-settings/word-puzzle-adunit.json?v=' + new Date())
+      .then(res => res.json())
+      .then(json => {
+        setAdUnits(json);
+      })
+      .catch(err => console.log('Failed to load ads', err.message));
+  }, []);
+
   useEffect(() => {
     // Initialize AdMob on app start
-    adService.initialize().catch(error => {
+    adService.initialize(adUnits).catch(error => {
       console.error('[App] Failed to initialize AdMob:', error);
     });
-  }, []);
+  }, [adUnits]);
 
   return (
     <QueryClientProvider client={queryClient}>

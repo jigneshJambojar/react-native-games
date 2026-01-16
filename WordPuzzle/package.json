@@ -10,8 +10,8 @@
     "apk": "cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
-    "@react-native-community/cli": "latest",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-community/cli": "latest",
     "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/native": "^6.1.0",
     "@react-navigation/native-stack": "^6.9.0",

@@ -49,19 +49,19 @@ class AdService {
   /**
    * Initialize the AdMob SDK
    */
-  async initialize(): Promise<void> {
+  async initialize(adUnits: any): Promise<void> {
     if (this.initialized) return;
 
     console.log('[AdService] Initializing Google AdMob SDK...');
-    
+
     try {
       await mobileAds().initialize();
       this.initialized = true;
       console.log('[AdService] AdMob SDK initialized successfully');
-      
+
       // Pre-load ads
-      this.loadRewardedAd();
-      this.loadInterstitialAd();
+      this.loadRewardedAd(adUnits);
+      this.loadInterstitialAd(adUnits);
     } catch (error) {
       console.error('[AdService] Failed to initialize AdMob:', error);
       throw error;
@@ -71,19 +71,19 @@ class AdService {
   /**
    * Load a rewarded ad
    */
-  async loadRewardedAd(): Promise<boolean> {
+  async loadRewardedAd(adUnits: any): Promise<boolean> {
     if (!this.initialized) {
-      await this.initialize();
+      await this.initialize(adUnits);
     }
 
     console.log('[AdService] Loading rewarded ad with ID:', AD_UNIT_IDS.rewarded);
-    
+
     try {
       // Reset state
       this.rewardedAdLoaded = false;
-      
+
       // Create a new rewarded ad instance
-      this.rewardedAd = RewardedAd.createForAdRequest(AD_UNIT_IDS.rewarded, {
+      this.rewardedAd = RewardedAd.createForAdRequest(Platform.select(adUnits.rewarded || AD_UNIT_IDS.rewarded), {
         requestNonPersonalizedAdsOnly: false,
       });
 
@@ -114,7 +114,7 @@ class AdService {
       // Load the ad
       this.rewardedAd.load();
       console.log('[AdService] Rewarded ad load() called');
-      
+
       return true;
     } catch (error) {
       console.error('[AdService] ❌ Failed to load rewarded ad:', error);
@@ -126,16 +126,16 @@ class AdService {
   /**
    * Load an interstitial ad
    */
-  async loadInterstitialAd(): Promise<boolean> {
+  async loadInterstitialAd(adUnits: any): Promise<boolean> {
     if (!this.initialized) {
-      await this.initialize();
+      await this.initialize(adUnits);
     }
 
     console.log('[AdService] Loading interstitial ad...');
-    
+
     try {
       // Create a new interstitial ad instance
-      this.interstitialAd = InterstitialAd.createForAdRequest(AD_UNIT_IDS.interstitial, {
+      this.interstitialAd = InterstitialAd.createForAdRequest(Platform.select(adUnits.interstitial || AD_UNIT_IDS.interstitial), {
         requestNonPersonalizedAdsOnly: false,
       });
 
@@ -145,7 +145,7 @@ class AdService {
         console.log('[AdService] Interstitial ad loaded successfully');
       });
 
-      const unsubscribeError = this.interstitialAd.addAdEventsListener((event) => {
+      const unsubscribeError = this.interstitialAd.addAdEventsListener((event: any) => {
         if (event.type === 'error') {
           console.error('[AdService] Interstitial ad error:', event.error);
           this.interstitialAdLoaded = false;
@@ -154,7 +154,7 @@ class AdService {
 
       // Load the ad
       this.interstitialAd.load();
-      
+
       return true;
     } catch (error) {
       console.error('[AdService] Failed to load interstitial ad:', error);
@@ -179,7 +179,7 @@ class AdService {
   /**
    * Show an interstitial ad
    */
-  async showInterstitialAd(): Promise<{ success: boolean; offline?: boolean }> {
+  async showInterstitialAd(adUnits: any): Promise<{ success: boolean; offline?: boolean }> {
     // Check network connectivity first
     const connected = await this.isConnected();
     if (!connected) {
@@ -189,15 +189,15 @@ class AdService {
 
     if (!this.interstitialAdLoaded || !this.interstitialAd) {
       console.log('[AdService] No interstitial ad loaded, loading now...');
-      await this.loadInterstitialAd();
-      
+      await this.loadInterstitialAd(adUnits);
+
       // Wait for ad to load (with timeout)
       const timeout = 10000; // 10 seconds
       const startTime = Date.now();
       while (!this.interstitialAdLoaded && Date.now() - startTime < timeout) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      
+
       if (!this.interstitialAdLoaded) {
         console.error('[AdService] Failed to load interstitial ad in time');
         return { success: false, offline: false };
@@ -205,7 +205,7 @@ class AdService {
     }
 
     console.log('[AdService] Showing interstitial ad...');
-    
+
     return new Promise((resolve) => {
       if (!this.interstitialAd) {
         resolve({ success: false, offline: false });
@@ -220,7 +220,7 @@ class AdService {
           unsubscribeClosed();
           this.interstitialAdLoaded = false;
           // Pre-load next ad
-          this.loadInterstitialAd();
+          this.loadInterstitialAd(adUnits);
           resolve({ success: true, offline: false });
         }
       );
@@ -239,7 +239,7 @@ class AdService {
   /**
    * Show a rewarded ad and return the reward
    */
-  async showRewardedAd(): Promise<{ success: boolean; coins: number; offline?: boolean }> {
+  async showRewardedAd(adUnits: any): Promise<{ success: boolean; coins: number; offline?: boolean }> {
     // Check network connectivity first
     const connected = await this.isConnected();
     if (!connected) {
@@ -249,15 +249,15 @@ class AdService {
 
     if (!this.rewardedAdLoaded || !this.rewardedAd) {
       console.log('[AdService] No rewarded ad loaded, loading now...');
-      await this.loadRewardedAd();
-      
+      await this.loadRewardedAd(adUnits);
+
       // Wait for ad to load (with timeout)
       const timeout = 10000; // 10 seconds
       const startTime = Date.now();
       while (!this.rewardedAdLoaded && Date.now() - startTime < timeout) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      
+
       if (!this.rewardedAdLoaded) {
         console.error('[AdService] Failed to load rewarded ad in time');
         return { success: false, coins: 0, offline: false };
@@ -265,7 +265,7 @@ class AdService {
     }
 
     console.log('[AdService] Showing rewarded ad...');
-    
+
     return new Promise((resolve) => {
       if (!this.rewardedAd) {
         resolve({ success: false, coins: 0, offline: false });
@@ -292,10 +292,10 @@ class AdService {
           unsubscribeEarned();
           unsubscribeClosed();
           this.rewardedAdLoaded = false;
-          
+
           // Pre-load next ad
-          this.loadRewardedAd();
-          
+          this.loadRewardedAd(adUnits);
+
           // Resolve with reward status
           if (rewardEarned) {
             console.log('[AdService] Resolving with reward');
@@ -334,6 +334,15 @@ class AdService {
   getRewardAmount(): number {
     return REWARD_AMOUNT;
   }
+
+  getBannerAdsUnitId(banner: any): string {
+    return Platform.select({
+      ios: banner.ios,
+      android: banner.android,
+      default: banner.default,
+    }) as string;
+  }
+
 }
 
 export const adService = new AdService();

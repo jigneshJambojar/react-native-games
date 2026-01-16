@@ -11,12 +11,24 @@ import Coin from '../../assets/coin.png';
 import Shop from '../../assets/btn-shop.png';
 import WINS from '../../assets/btn-achievements.png';
 import Lock from '../../assets/lock.png';
+import { useEffect, useState } from 'react';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { levels, progress } = useGame();
+  const [hasAd, setHasAd] = useState(false);
+  const [adUnits, setAdUnits] = useState(null);
+
+  useEffect(() => {
+    fetch('https://d22swxawtpfyg.cloudfront.net/react-native-game-settings/word-puzzle-adunit.json?v=' + new Date())
+      .then(res => res.json())
+      .then(json => {
+        setAdUnits(json.banner);
+      })
+      .catch(err => console.log('Failed to load ads', err.message));
+  }, []);
 
   const getLevelStatus = (levelId: number) => {
     if (progress.completedLevels.includes(levelId)) return 'completed';
@@ -140,21 +152,18 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      <View style={styles.stickyAd}>
+      {adUnits && (<View style={[styles.stickyAd, { display: hasAd ? 'flex' : 'none' }]}>
         <BannerAd
-          unitId={adService.getBannerAdUnitId()}
-          size={BannerAdSize.MEDIUM_RECTANGLE}
+          unitId={adService.getBannerAdsUnitId(adUnits)}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           requestOptions={{
             requestNonPersonalizedAdsOnly: false,
           }}
-          onAdLoaded={() => {
-            console.log('[GameScreen] Banner ad loaded');
-          }}
-          onAdFailedToLoad={(error) => {
-            console.error('[GameScreen] Banner ad failed to load:', error);
-          }}
+          onAdLoaded={() => setHasAd(true)}
+          onAdFailedToLoad={() => setHasAd(false)}
         />
       </View>
+      )}
 
     </SafeAreaView>
   );
@@ -170,14 +179,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    height: 110,              // ✅ FIXED HEIGHT
     alignItems: 'center',
-    backgroundColor: '#ffedbb', // match app bg
-    paddingVertical: 4,
+    justifyContent: 'center',
+    backgroundColor: '#ffedbb',
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
   },
   header: {
-    width:'100%',
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
