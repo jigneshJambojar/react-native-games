@@ -21,6 +21,7 @@ web-build/
 .metro-health-check*
 
 # Android
+android
 android/.gradle/
 android/build/
 android/app/build/
