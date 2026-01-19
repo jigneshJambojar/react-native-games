@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 import LevelManager from '../utils/LevelManager';
 import star from '../assets/images/star-filled.png';
 import levelLocked from '../assets/images/level-locked.png';
+import { useFocusEffect } from '@react-navigation/native';
 
 const LEVEL_COLORS = [
   '#f39c4d', // light pink
@@ -33,9 +34,16 @@ const getLevelColor = (level) => {
 const LevelSelectScreen = ({ navigation }) => {
   const [levels, setLevels] = useState([]);
 
-  useEffect(() => {
-    loadLevels();
-  }, []);
+  // useEffect(() => {
+  //   loadLevels();
+  // }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadLevels();
+      console.log("LevelSelectScreen focused, levels reloaded");
+    }, [])
+  );
 
   const loadLevels = async () => {
     await LevelManager.loadProgress();
