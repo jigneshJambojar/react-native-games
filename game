@@ -1,3 +1,7 @@
 "apk": "cd android && ./gradlew assembleRelease",
 "android": "expo run:android",
 APK path: Game1\android\app\build\outputs\apk\release
+
+
+For create android folder in expo 
+npx expo prebuild
