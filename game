@@ -5,3 +5,61 @@ APK path: Game1\android\app\build\outputs\apk\release
 
 For create android folder in expo 
 npx expo prebuild
+
+Release build CMD:
+gradlew bundleRelease
+
+Release build path:
+D:\React Native Games\GIT\react-native-games\WordPuzzle\android\app\build\outputs\bundle\release
+
+
+Step to release build
+Step 1: Generate a release keystore (if you don’t have one)
+
+keytool -genkey -v -keystore wordpuzzle-release.keystore -alias wordpuzzlekey -keyalg RSA -keysize 2048 -validity 10000
+
+
+Configure Gradle to use it
+
+Edit android/app/build.gradle:
+signingConfigs {
+        release {
+            storeFile file("wordpuzzle-release.keystore")
+            storePassword "YOUR_STORE_PASSWORD"
+            keyAlias "wordpuzzlekey"
+            keyPassword "YOUR_KEY_PASSWORD"
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            shrinkResources false
+            minifyEnabled false
+        }
+    }
+
+    Build the .aab
+    cd android
+./gradlew bundleRelease
+
+android/app/build/outputs/bundle/release/app-release.aab
+
+Version code 1 has already been used. Try another version code.
+android/app/build.gradle
+defaultConfig {
+    versionCode 1
+    versionName "1.0.0"
+}
+
+Your app currently targets API level 34 and must target at least API level 35 to ensure that it is built on the latest APIs optimised for security and performance
+D:\React Native Games\GIT\react-native-games\WordPuzzle\android\build.gradle
+ ext {
+        buildToolsVersion = findProperty('android.buildToolsVersion') ?: '35.0.0'
+        minSdkVersion = 24
+        compileSdkVersion = 35
+        targetSdkVersion = 35
+        kotlinVersion = findProperty('android.kotlinVersion') ?: '1.9.25'
+
+        ndkVersion = "26.1.10909125"
+    }

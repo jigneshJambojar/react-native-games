@@ -143,15 +143,15 @@ export default function ShopScreen() {
             ))}
           </View>
 
-          <View style={styles.noteCard}>
+          {/* <View style={styles.noteCard}>
             <Text style={styles.noteIcon}>ℹ️</Text>
             <Text style={styles.noteText}>
               This is a demo app. In-app purchases and rewarded ads are simulated.
               For production, integrate with real payment and ad providers.
             </Text>
-          </View>
+          </View> */}
 
-          <View style={styles.integrationGuide}>
+          {/* <View style={styles.integrationGuide}>
             <Text style={styles.guideTitle}>Integration Notes</Text>
             <Text style={styles.guideText}>
               • In-App Purchases: See IAPService.ts for expo-in-app-purchases integration
@@ -162,7 +162,7 @@ export default function ShopScreen() {
             <Text style={styles.guideText}>
               • Configure app.json with your AdMob App ID for production
             </Text>
-          </View>
+          </View> */}
         </View>
       </ScrollView>
 
