@@ -35,8 +35,8 @@ export const CATEGORIES = {
     displayName: 'Cards',
     image: require('../../assets/cat/CardGames.png'),
     difficulties: {
-      easy: ['gin'],
-      // easy: ['bridge', 'gin', 'hearts', 'poker', 'rummy', 'snap', 'spit', 'uno', 'war', 'whist'],
+      // easy: ['gin'],
+      easy: ['bridge', 'gin', 'hearts', 'poker', 'rummy', 'snap', 'spit', 'uno', 'war', 'whist'],
       medium: ['baccarat', 'blackjack', 'canasta', 'cribbage', 'euchre', 'pinochle', 'rook', 'solitaire', 'spades', 'tarot'],
       hard: ['bezique', 'cassino', 'concentration', 'cutthroat', 'klondike', 'napoleon', 'patience', 'piquet', 'president', 'sheepshead']
     }
