@@ -14,7 +14,7 @@ export default function App() {
     <GameProvider>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Category"
+          initialRouteName="Home"
           screenOptions={{
             headerShown: false
           }}

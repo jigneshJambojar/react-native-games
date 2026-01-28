@@ -5,6 +5,8 @@ import GameHeader from '../components/GameHeader';
 import WordGrid from '../components/WordGrid';
 import WordList from '../components/WordList';
 import LeaveGamePopup from '../components/LeaveGamePopup';
+import { getWordsForCategory, GRID_SIZES } from '../constants/categoryData';
+import { generateWordSearchGrid } from '../utils/wordGenerator';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -58,7 +60,7 @@ const PauseOverlay = ({ visible, onResume }) => {
 
 const GameScreen = ({ navigation, route }) => {
   const { category, difficulty } = route.params;
-  const { gameState, formatTime, getBestTime, resetGame, resumeGame } = useGame();
+  const { gameState, formatTime, getBestTime, resetGame, resumeGame, startGame } = useGame();
   const [showCompletion, setShowCompletion] = useState(false);
   const [isNewRecord, setIsNewRecord] = useState(false);
   const [leavePopupVisible, setLeavePopupVisible] = useState(false);
@@ -84,8 +86,26 @@ const GameScreen = ({ navigation, route }) => {
   const handleRestart = () => {
     setShowCompletion(false);
     resetGame();
-    navigation.replace('Game', { category, difficulty });
+    restartGame(category, difficulty);
   };
+
+  const restartGame = (categoryId, difficulty) => {
+    const words = getWordsForCategory(categoryId, difficulty);
+    const gridSize = GRID_SIZES[difficulty];
+
+    const { grid, placedWords } = generateWordSearchGrid(words, gridSize);
+
+    if (!grid || !placedWords || placedWords.length === 0) {
+      alert('Error generating game. Please try again.');
+      return;
+    }
+
+    startGame(grid, gridSize, placedWords, categoryId, difficulty);
+
+    setTimeout(() => {
+      navigation.navigate('Game', { category: categoryId, difficulty });
+    }, 100);
+  }
 
   const handleBackToMenu = () => {
     setShowCompletion(false);
@@ -113,7 +133,7 @@ const GameScreen = ({ navigation, route }) => {
         {/* WordGrid - 70% height */}
         <View style={styles.gridContainer}>
           <View>
-            <WordGrid onHeight={setGridHeight}/>
+            <WordGrid onHeight={setGridHeight} />
           </View>
 
           <View style={{ maxHeight: wordListMaxHeight }}>
