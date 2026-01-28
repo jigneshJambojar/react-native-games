@@ -5,6 +5,8 @@ import { GameProvider } from './src/context/GameContext';
 import CategoryScreen from './src/screens/CategoryScreen';
 import GameScreen from './src/screens/GameScreen';
 
+import HomeScreen from './src/screens/HomeScreen';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -17,6 +19,7 @@ export default function App() {
             headerShown: false
           }}
         >
+          <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Category" component={CategoryScreen} />
           <Stack.Screen name="Game" component={GameScreen} />
         </Stack.Navigator>

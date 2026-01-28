@@ -4,7 +4,7 @@ import { useGame } from '../context/GameContext';
 import { validateWordSelection } from '../utils/wordGenerator';
 
 const { width } = Dimensions.get('window');
-const GRID_PADDING = 20;
+const GRID_PADDING = 25;
 
 const GridCell = ({ letter, isSelected, isFound, cellSize, onPress }) => {
   return (
@@ -26,12 +26,12 @@ const GridCell = ({ letter, isSelected, isFound, cellSize, onPress }) => {
   );
 };
 
-const WordGrid = () => {
+const WordGrid = ({ onHeight }) => {
   const { gameState, markWordAsFound, isWordFound } = useGame();
   const { grid, gridSize, placedWords } = gameState;
-  
+
   const [selectedCells, setSelectedCells] = useState([]);
-  
+
   const cellSize = useMemo(() => {
     if (gridSize === 0) return 0;
     return (width - GRID_PADDING * 2) / gridSize;
@@ -57,18 +57,18 @@ const WordGrid = () => {
 
   const handleCellPress = (row, col) => {
     const newCell = { row, col };
-    
+
     // ALLOW selection through found cells (removed block)
     // This allows selecting overlapping words
-    
+
     // If no cells selected, start new selection
     if (selectedCells.length === 0) {
       setSelectedCells([newCell]);
       return;
     }
-    
+
     const lastCell = selectedCells[selectedCells.length - 1];
-    
+
     // Check if clicking the same cell (deselect)
     if (lastCell.row === row && lastCell.col === col) {
       if (selectedCells.length === 1) {
@@ -78,21 +78,21 @@ const WordGrid = () => {
       }
       return;
     }
-    
+
     // Check if cell is already in selection (allow backtracking)
     const cellIndex = selectedCells.findIndex(c => c.row === row && c.col === col);
     if (cellIndex !== -1 && cellIndex < selectedCells.length - 1) {
       setSelectedCells(selectedCells.slice(0, cellIndex + 1));
       return;
     }
-    
+
     // Check if new cell is adjacent to last cell
     if (!isAdjacent(lastCell, newCell)) {
       // Not adjacent - reset and start new selection
       setSelectedCells([newCell]);
       return;
     }
-    
+
     // If we have 2+ cells, check direction consistency
     if (selectedCells.length >= 2) {
       const secondLast = selectedCells[selectedCells.length - 2];
@@ -102,15 +102,15 @@ const WordGrid = () => {
         return;
       }
     }
-    
+
     // Add cell to selection
     const newSelection = [...selectedCells, newCell];
     setSelectedCells(newSelection);
-    
+
     // Validate if we have at least 2 cells
     if (newSelection.length >= 2) {
       const foundWord = validateWordSelection(newSelection, placedWords);
-      
+
       if (foundWord && !isWordFound(foundWord.word)) {
         // Valid word found!
         markWordAsFound(foundWord.word);
@@ -139,7 +139,7 @@ const WordGrid = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={(e) => onHeight(e.nativeEvent.layout.height)}>
       <View style={styles.grid}>
         {grid.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.row}>
@@ -162,10 +162,12 @@ const WordGrid = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
+    // flex: 1,
+    justifyContent: 'top',
     alignItems: 'center',
-    padding: GRID_PADDING
+    padding: GRID_PADDING,
+    position: 'relative',
+    paddingTop: 15
   },
   grid: {
     backgroundColor: '#fff',

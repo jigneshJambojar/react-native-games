@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useGame } from '../context/GameContext';
 
 const GameHeader = ({ onBack }) => {
@@ -12,9 +12,13 @@ const GameHeader = ({ onBack }) => {
     <View style={styles.container}>
       <View style={styles.row}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backText}>← Back</Text>
+          <Image
+            source={require('../../assets/btn/bt-back.png')}
+            style={styles.backText}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
-        
+
         <View style={styles.centerInfo}>
           <Text style={styles.categoryText}>
             {category} - {difficulty}
@@ -25,34 +29,61 @@ const GameHeader = ({ onBack }) => {
           onPress={isPaused ? resumeGame : pauseGame}
           style={styles.pauseButton}
         >
-          <Text style={styles.pauseText}>{isPaused ? '▶' : '❚❚'}</Text>
+          {isPaused && <Image
+            source={require('../../assets/btn/bt-continue.png')}
+            style={styles.backText}
+            resizeMode="contain"
+          />
+          }
+          {!isPaused && <Image
+            source={require('../../assets/btn/bt-pause.png')}
+            style={styles.backText}
+            resizeMode="contain"
+          />
+          }
         </TouchableOpacity>
       </View>
 
       <View style={styles.statsRow}>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>TIME</Text>
-          <Text style={styles.statValue}>{formatTime(timer)}</Text>
+        {/* Time */}
+        <View style={styles.inlineItem}>
+          <Image
+            source={require('../../assets/btn/bt-watch.png')}
+            style={styles.statIcon}
+          />
+          <Text style={styles.inlineText}>{formatTime(timer)}</Text>
         </View>
 
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>PROGRESS</Text>
-          <Text style={styles.statValue}>{Math.round(progress)}%</Text>
+        {/* Progress bar */}
+        <View style={styles.progressBar}>
+          <View
+            style={[
+              styles.progressFill,
+              { width: `${progress}%` }
+            ]}
+          />
+        </View>
+
+        {/* Progress % */}
+        <View style={styles.inlineItem}>
+          {/* <Image
+            source={require('../../assets/icons/ic-progress.png')}
+            style={styles.statIcon}
+          /> */}
+          <Text style={styles.inlineText}>{Math.round(progress)}%</Text>
         </View>
       </View>
 
-      <View style={styles.progressBar}>
-        <View style={[styles.progressFill, { width: `${progress}%` }]} />
-      </View>
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
-    paddingTop: 50,
-    paddingHorizontal: 20,
+    backgroundColor: '#fec702',
+    paddingTop: 20,
+    paddingHorizontal: 10,
     paddingBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -70,9 +101,8 @@ const styles = StyleSheet.create({
     padding: 8
   },
   backText: {
-    fontSize: 16,
-    color: '#007bff',
-    fontWeight: '600'
+    width: 40,
+    height: 40,
   },
   centerInfo: {
     flex: 1,
@@ -87,39 +117,44 @@ const styles = StyleSheet.create({
   pauseButton: {
     padding: 8
   },
-  pauseText: {
-    fontSize: 20,
-    color: '#007bff'
-  },
   statsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 12
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginTop: 8
   },
-  statItem: {
-    alignItems: 'center'
+
+  inlineItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6
   },
-  statLabel: {
-    fontSize: 12,
-    color: '#6c757d',
-    fontWeight: '600',
-    marginBottom: 4
-  },
-  statValue: {
-    fontSize: 20,
+
+  inlineText: {
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333'
   },
+
+  statIcon: {
+    width: 18,
+    height: 18,
+    resizeMode: 'contain'
+  },
+
   progressBar: {
-    height: 6,
+    flex: 1,
+    height: 8,
     backgroundColor: '#e9ecef',
-    borderRadius: 3,
+    borderRadius: 8,
     overflow: 'hidden'
   },
+
   progressFill: {
     height: '100%',
     backgroundColor: '#4caf50',
-    borderRadius: 3
+    borderRadius: 8
   }
 });
 

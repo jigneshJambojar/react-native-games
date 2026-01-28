@@ -1,0 +1,208 @@
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Modal, Text, TouchableOpacity, Alert } from 'react-native';
+import { useGame } from '../context/GameContext';
+import GameHeader from '../components/GameHeader';
+import WordGrid from '../components/WordGrid';
+import WordList from '../components/WordList';
+
+const CompletionModal = ({ visible, time, isNewRecord, onRestart, onBack }) => (
+  <Modal visible={visible} transparent animationType="fade">
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>🎉 Congratulations!</Text>
+        <Text style={styles.modalText}>You found all words!</Text>
+        <Text style={styles.modalTime}>Time: {time}</Text>
+        {isNewRecord && (
+          <Text style={styles.newRecordText}>🏆 New Best Time!</Text>
+        )}
+        <View style={styles.modalButtons}>
+          <TouchableOpacity style={styles.modalButton} onPress={onRestart}>
+            <Text style={styles.modalButtonText}>Play Again</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.modalButton, styles.modalButtonSecondary]}
+            onPress={onBack}
+          >
+            <Text style={styles.modalButtonText}>Back to Menu</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  </Modal>
+);
+
+const PauseOverlay = ({ visible, onResume }) => {
+  if (!visible) return null;
+  
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <TouchableOpacity
+        style={styles.pauseOverlay}
+        activeOpacity={1}
+        onPress={onResume}
+      >
+        <Text style={styles.pauseText}>PAUSED</Text>
+        <Text style={styles.pauseSubtext}>Tap anywhere to resume</Text>
+      </TouchableOpacity>
+    </Modal>
+  );
+};
+
+const GameScreen = ({ navigation, route }) => {
+  const { category, difficulty } = route.params;
+  const { gameState, formatTime, getBestTime, resetGame, resumeGame } = useGame();
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [isNewRecord, setIsNewRecord] = useState(false);
+
+  useEffect(() => {
+    if (!gameState.isPlaying && gameState.timer > 0 && gameState.foundWords.size > 0) {
+      // Game completed
+      const previousBest = getBestTime(category, difficulty);
+      const isRecord = !previousBest || gameState.timer < previousBest;
+      setIsNewRecord(isRecord);
+      setShowCompletion(true);
+    }
+  }, [gameState.isPlaying]);
+
+  const handleBack = () => {
+    Alert.alert(
+      'Leave Game?',
+      'Your progress will be lost. Are you sure?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: () => {
+            resetGame();
+            navigation.goBack();
+          }
+        }
+      ]
+    );
+  };
+
+  const handleRestart = () => {
+    setShowCompletion(false);
+    resetGame();
+    navigation.replace('Game', { category, difficulty });
+  };
+
+  const handleBackToMenu = () => {
+    setShowCompletion(false);
+    resetGame();
+    navigation.goBack();
+  };
+
+  // Safety check - if no game loaded, show loading or go back
+  if (!gameState.grid || gameState.grid.length === 0) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ fontSize: 18, color: '#666' }}>Loading game...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <GameHeader onBack={handleBack} />
+      <WordGrid />
+      <WordList />
+      
+      <PauseOverlay
+        visible={gameState.isPaused}
+        onResume={resumeGame}
+      />
+      
+      <CompletionModal
+        visible={showCompletion}
+        time={formatTime(gameState.timer)}
+        isNewRecord={isNewRecord}
+        onRestart={handleRestart}
+        onBack={handleBackToMenu}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa'
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 32,
+    alignItems: 'center',
+    width: '80%',
+    maxWidth: 400
+  },
+  modalTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 16
+  },
+  modalText: {
+    fontSize: 18,
+    color: '#666',
+    marginBottom: 8
+  },
+  modalTime: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#4caf50',
+    marginBottom: 8
+  },
+  newRecordText: {
+    fontSize: 18,
+    color: '#ffc107',
+    fontWeight: 'bold',
+    marginBottom: 24
+  },
+  modalButtons: {
+    flexDirection: 'column',
+    width: '100%',
+    gap: 12
+  },
+  modalButton: {
+    backgroundColor: '#007bff',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    width: '100%'
+  },
+  modalButtonSecondary: {
+    backgroundColor: '#6c757d'
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold'
+  },
+  pauseOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  pauseText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 16
+  },
+  pauseSubtext: {
+    fontSize: 18,
+    color: '#ccc'
+  }
+});
+
+export default GameScreen;

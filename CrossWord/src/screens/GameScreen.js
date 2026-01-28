@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Modal, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, Modal, Text, TouchableOpacity, Alert, Image, Dimensions } from 'react-native';
 import { useGame } from '../context/GameContext';
 import GameHeader from '../components/GameHeader';
 import WordGrid from '../components/WordGrid';
 import WordList from '../components/WordList';
+import LeaveGamePopup from '../components/LeaveGamePopup';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const CompletionModal = ({ visible, time, isNewRecord, onRestart, onBack }) => (
   <Modal visible={visible} transparent animationType="fade">
@@ -33,7 +36,7 @@ const CompletionModal = ({ visible, time, isNewRecord, onRestart, onBack }) => (
 
 const PauseOverlay = ({ visible, onResume }) => {
   if (!visible) return null;
-  
+
   return (
     <Modal visible={visible} transparent animationType="fade">
       <TouchableOpacity
@@ -42,6 +45,11 @@ const PauseOverlay = ({ visible, onResume }) => {
         onPress={onResume}
       >
         <Text style={styles.pauseText}>PAUSED</Text>
+        <Image
+          source={require('../../assets/btn/bt-continue.png')}
+          style={styles.backText}
+          resizeMode="contain"
+        />
         <Text style={styles.pauseSubtext}>Tap anywhere to resume</Text>
       </TouchableOpacity>
     </Modal>
@@ -53,6 +61,9 @@ const GameScreen = ({ navigation, route }) => {
   const { gameState, formatTime, getBestTime, resetGame, resumeGame } = useGame();
   const [showCompletion, setShowCompletion] = useState(false);
   const [isNewRecord, setIsNewRecord] = useState(false);
+  const [leavePopupVisible, setLeavePopupVisible] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [gridHeight, setGridHeight] = useState(0);
 
   useEffect(() => {
     if (!gameState.isPlaying && gameState.timer > 0 && gameState.foundWords.size > 0) {
@@ -64,22 +75,10 @@ const GameScreen = ({ navigation, route }) => {
     }
   }, [gameState.isPlaying]);
 
-  const handleBack = () => {
-    Alert.alert(
-      'Leave Game?',
-      'Your progress will be lost. Are you sure?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Leave',
-          style: 'destructive',
-          onPress: () => {
-            resetGame();
-            navigation.goBack();
-          }
-        }
-      ]
-    );
+
+  const handleLeave = () => {
+    resetGame();
+    navigation.goBack();
   };
 
   const handleRestart = () => {
@@ -103,23 +102,45 @@ const GameScreen = ({ navigation, route }) => {
     );
   }
 
+  const wordListMaxHeight = SCREEN_HEIGHT - headerHeight - gridHeight;
+
   return (
     <View style={styles.container}>
-      <GameHeader onBack={handleBack} />
-      <WordGrid />
-      <WordList />
-      
+      <View onLayout={e => setHeaderHeight(e.nativeEvent.layout.height)}>
+        <GameHeader onBack={() => setLeavePopupVisible(true)} />
+      </View>
+      <View style={styles.mainContent}>
+        {/* WordGrid - 70% height */}
+        <View style={styles.gridContainer}>
+          <View>
+            <WordGrid onHeight={setGridHeight}/>
+          </View>
+
+          <View style={{ maxHeight: wordListMaxHeight }}>
+            <WordList />
+          </View>
+
+        </View>
+
+      </View>
+
       <PauseOverlay
         visible={gameState.isPaused}
         onResume={resumeGame}
       />
-      
+
       <CompletionModal
         visible={showCompletion}
         time={formatTime(gameState.timer)}
         isNewRecord={isNewRecord}
         onRestart={handleRestart}
         onBack={handleBackToMenu}
+      />
+
+      <LeaveGamePopup
+        visible={leavePopupVisible}
+        onCancel={() => setLeavePopupVisible(false)}
+        onLeave={handleLeave}
       />
     </View>
   );
@@ -128,7 +149,13 @@ const GameScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa'
+    backgroundColor: '#fec702'
+  },
+  mainContent: {
+    flex: 1,
+  },
+  gridContainer: {
+    flex: 1,
   },
   modalOverlay: {
     flex: 1,
@@ -200,6 +227,7 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
   pauseSubtext: {
+    marginTop: 16,
     fontSize: 18,
     color: '#ccc'
   }
