@@ -33,7 +33,7 @@ export default function GameScreen() {
   const [wrongWord, setWrongWord] = useState(false);
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeRemainingRef = useRef(0);
 
   const [adUnits, setAdUnits] = useState<any>(null);
@@ -48,6 +48,11 @@ export default function GameScreen() {
   }, []);
 
   useEffect(() => {
+    if (timerRef.current !== null) {
+      clearInterval(timerRef.current);
+      setTimeRemaining(0);
+      timerRef.current = null;
+    }
     startLevel(levelId);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -55,6 +60,13 @@ export default function GameScreen() {
   }, [levelId, startLevel]);
 
   useEffect(() => {
+    // stop any existing timer
+    if (timerRef.current !== null) {
+      clearInterval(timerRef.current);
+      setTimeRemaining(0);
+      timerRef.current = null;
+    }
+
     if (currentGame) {
       setTimeRemaining(currentGame.totalTime);
       timeRemainingRef.current = currentGame.totalTime;
@@ -64,17 +76,17 @@ export default function GameScreen() {
   useEffect(() => {
     if (!currentGame || currentGame.isComplete) return;
 
+    // stop any existing timer
+    if (timerRef.current !== null) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
     timerRef.current = setInterval(() => {
       setTimeRemaining(prev => {
         if (prev <= 1) {
           if (timerRef.current) clearInterval(timerRef.current);
-
-          // Alert.alert('Time Up!', 'You ran out of time.', [
-          //   { text: 'Try Again', onPress: () => startLevel(levelId) },
-          //   { text: 'Home', onPress: () => navigation.navigate('Home') },
-          // ]);
           setShowTimeUpModal(true);
-
           return 0;
         }
         timeRemainingRef.current = prev - 1;
@@ -315,7 +327,7 @@ export default function GameScreen() {
       {adUnits && adUnits.banner && (<View style={styles.bannerContainer}>
         <BannerAd
           unitId={adService.getBannerAdsUnitId(adUnits.banner)}
-          size={BannerAdSize.MEDIUM_RECTANGLE}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           requestOptions={{
             requestNonPersonalizedAdsOnly: false,
           }}
@@ -341,7 +353,14 @@ export default function GameScreen() {
                 style={styles.timeUpButton}
                 onPress={() => {
                   setShowTimeUpModal(false);
-                  startLevel(levelId);
+                  if (timerRef.current !== null) {
+                    setTimeRemaining(0);
+                    clearInterval(timerRef.current);
+                    timerRef.current = null;
+                    timeRemainingRef.current = 0;
+                  }
+
+                  setTimeout(() => { navigation.replace('Game', { levelId }) }, 100);
                 }}
               >
                 <Image source={Retry} style={styles.timeUpIcon} />
@@ -421,6 +440,7 @@ export default function GameScreen() {
   );
 }
 
+const screenWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -628,7 +648,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   letterTile: {
-    width: Math.min(45, Dimensions.get('window').width / 8),
+    width: Math.min(45, screenWidth / 8),
     height: 45,
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -654,7 +674,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
     paddingVertical: 8,
-    minHeight: 260,
+    // minHeight: 260,
   },
   actions: {
     flexDirection: 'row',
