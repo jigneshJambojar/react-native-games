@@ -42,7 +42,7 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 const WORD_LISTS: Record<number, string[]> = {
-  3: ['CAT', 'DOG', 'SUN', 'RUN', 'FUN', 'HAT', 'BAT', 'RAT', 'MAP', 'CAP', 'TAP', 'PAN', 'CAN', 'MAN', 'VAN', 'JAM', 'HAM', 'SAM', 'MAX', 'WAX', 'TAX', 'BOX', 'FOX', 'MIX', 'SIX', 'FIX', 'BIG', 'DIG', 'PIG', 'WIG', 'JIG', 'FIG', 'BED', 'RED', 'LED', 'FED', 'WET', 'PET', 'SET', 'GET', 'LET', 'NET', 'MET', 'JET', 'BET', 'YET', 'HEN', 'PEN', 'TEN', 'DEN', 'MEN'],
+  3: ['CAT', 'DOG', 'SUN', 'RUN', 'FUN', 'HAT', 'BAT', 'RAT', 'MAP', 'CAP', 'TAP', 'PAN', 'CAN', 'MAN', 'ANT', 'BAG', 'CUP', 'EGG', 'MAX', 'ZOO', 'TAX', 'BOX', 'FOX', 'MIX', 'SIX', 'FIX', 'BIG', 'DIG', 'PIG', 'WAR', 'ROW', 'OIL', 'BED', 'RED', 'LED', 'FED', 'WET', 'PET', 'SET', 'ZIP', 'LET', 'NET', 'MET', 'JET', 'BET', 'ICE', 'JAR', 'PEN', 'TEN', 'COW', 'MEN'],
   4: ['CAKE', 'LAKE', 'MAKE', 'TAKE', 'WAKE', 'BAKE', 'FAKE', 'RAKE', 'GAME', 'NAME', 'SAME', 'FAME', 'CAME', 'TAME', 'DAME', 'LAME', 'FIRE', 'HIRE', 'WIRE', 'TIRE', 'DIVE', 'FIVE', 'GIVE', 'HIVE', 'LIVE', 'BONE', 'CONE', 'DONE', 'GONE', 'LONE', 'NONE', 'TONE', 'ZONE', 'HOME', 'DOME', 'ROME', 'COME', 'SOME', 'BOOK', 'COOK', 'HOOK', 'LOOK', 'TOOK', 'NOOK', 'ROOM', 'BOOM', 'DOOM', 'ZOOM', 'LOOM'],
   5: ['APPLE', 'HAPPY', 'CANDY', 'DANCE', 'EARTH', 'FANCY', 'GRACE', 'HEART', 'IMAGE', 'JOLLY', 'KNIFE', 'LEMON', 'MANGO', 'NIGHT', 'OCEAN', 'PEACH', 'QUEEN', 'ROBOT', 'STONE', 'TIGER', 'UNCLE', 'VIVID', 'WATER', 'YOUTH', 'ZEBRA', 'BRAVE', 'CRAZY', 'DREAM', 'EAGLE', 'FLAME', 'GHOST', 'HORSE', 'IVORY', 'JEWEL', 'KARMA', 'LUNAR', 'MAGIC', 'NOBLE', 'OASIS', 'PIANO', 'QUEST', 'ROYAL', 'STORM', 'TOWER', 'UNITY', 'VOICE', 'WORLD', 'XYLON', 'YOUNG'],
   6: ['BANANA', 'CASTLE', 'DRAGON', 'ENERGY', 'FAMILY', 'GARDEN', 'HEAVEN', 'ISLAND', 'JUNGLE', 'KITTEN', 'LAPTOP', 'MONKEY', 'NATURE', 'ORANGE', 'PALACE', 'RABBIT', 'SALMON', 'TEMPLE', 'TURTLE', 'UNICORN', 'VALLEY', 'WINNER', 'YELLOW', 'ZIGZAG', 'BRIDGE', 'CLOUDS', 'DESERT', 'ESCAPE', 'FROZEN', 'GLOBAL', 'HELMET', 'INSECT', 'JOYFUL', 'KNIGHT', 'LEGACY', 'MUSEUM', 'NATIVE', 'OUTFIT', 'PLANET', 'QUARTZ', 'RESCUE', 'SHIELD', 'THRONE', 'UPBEAT', 'VISION', 'WISDOM', 'ZENITH'],
@@ -102,8 +102,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const wordList = WORD_LISTS[level.wordLength] || WORD_LISTS[3];
     const shuffledWords = shuffleArray(wordList);
     const selectedWords = shuffledWords.slice(0, level.wordCount);
-    console.log(selectedWords,"selectedWords")
-    
+    console.log(selectedWords, "selectedWords")
+
     const allLetters = selectedWords.join('').split('');
     const extraLetters = shuffleArray(wordList.join('').split('')).slice(0, Math.floor(allLetters.length * 0.2));
     const availableLetters = shuffleArray([...allLetters, ...extraLetters]);
@@ -226,7 +226,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Save progress to storage whenever it changes
   useEffect(() => {
     if (!isLoaded) return; // Don't save initial state
-    
+
     const saveProgress = async () => {
       try {
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(progress));

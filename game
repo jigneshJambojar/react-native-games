@@ -39,8 +39,9 @@ signingConfigs {
         }
     }
 
-    Build the .aab
-    cd android
+
+Build the .aab
+cd android
 ./gradlew bundleRelease
 
 android/app/build/outputs/bundle/release/app-release.aab
@@ -63,14 +64,3 @@ D:\React Native Games\GIT\react-native-games\WordPuzzle\android\build.gradle
 
         ndkVersion = "26.1.10909125"
     }
-	
-	
-	
-	
-	#fec702
-	
-	1 126.52
-	
-	1P 42.74
-	
-	1R 0.34

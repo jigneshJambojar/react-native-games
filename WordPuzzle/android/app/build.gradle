@@ -94,8 +94,8 @@ android {
         applicationId 'com.jambojar.wordpuzzle'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.0.2"
+        versionCode project.VERSION_CODE.toInteger()
+        versionName project.VERSION_NAME
     }
     signingConfigs {
         debug {
