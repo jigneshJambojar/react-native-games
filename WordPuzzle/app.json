@@ -36,6 +36,17 @@
           "androidAppId": "ca-app-pub-9084396328078500~6234998527",
           "iosAppId": "ca-app-pub-3940256099942544~1458002511"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "ndkVersion": "27.1.12297006"
+          }
+        }
       ]
     ],
     "extra": {

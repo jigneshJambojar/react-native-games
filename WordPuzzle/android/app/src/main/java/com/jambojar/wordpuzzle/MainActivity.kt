@@ -1,5 +1,4 @@
 package com.jambojar.wordpuzzle
-import com.jambojar.wordpuzzle.BuildConfig
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
